@@ -1,6 +1,7 @@
 """
 🚀 CORE AGENT APPLICATION (DAY 03: CHATBOT VS REACT AGENT)
 Thực thi so sánh giữa Chatbot Baseline (Cấp 2) và ReAct Agent kết nối MCP Server (Cấp 3).
+Đề tài: Trợ lý Đặt Phòng họp & Thiết bị (Facilities Agent)
 """
 
 import json
@@ -64,7 +65,7 @@ def run_baseline_chatbot(user_query: str, provider):
 def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) -> list:
     """
     [REACT AGENT LOOP] Thực thi vòng lặp Thought -> Action -> Observation với MCP Server
-    Trả về danh sách trace log của phiên thực thi.
+    Trà về danh sách trace log của phiên thực thi.
     """
     print(f"\n🤖 [REACT AGENT] Câu hỏi: {user_query}")
     
@@ -117,21 +118,24 @@ def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) ->
                 obs_str = json.dumps(obs_data, ensure_ascii=False)
                 print(f"👁️ [Observation từ MCP Server]: {obs_str}")
                 
-                # Tổng hợp Final Answer từ kết quả Observation thực tế
+                # Tổng hợp Final Answer từ kết quả Observation của Facilities Agent
                 if obs_data.get("status") == "SUCCESS":
-                    if "data" in obs_data:
-                        d = obs_data["data"]
+                    if "rooms" in obs_data:
+                        room_list = [f"{r['room_name']} ({r['room_id']} - Sức chứa: {r['capacity']} người, Thiết bị: {', '.join(r['available_equipments'])})" for r in obs_data.get("rooms", [])]
                         final_answer = (
-                            f"Kết quả tra cứu cho sinh viên {obs_data.get('student_id', '')} ({d.get('full_name', '')}): "
-                            f"Lớp {d.get('class', '')}, GPA: {d.get('gpa', '')}, Email: {d.get('email', '')}, "
-                            f"Trạng thái: {d.get('status', '')}, Cố vấn: {d.get('advisor', '')}."
+                            f"Trong khung giờ {obs_data.get('time_slot')} ngày {obs_data.get('date')}, có {obs_data.get('total_available')} phòng trống:\n- "
+                            + "\n- ".join(room_list)
+                        )
+                    elif "booking_id" in obs_data:
+                        final_answer = (
+                            f"{obs_data.get('message')} Mã đặt phòng của bạn là: {obs_data.get('booking_id')}."
                         )
                     elif "message" in obs_data:
                         final_answer = obs_data["message"]
                     else:
                         final_answer = f"Đã hoàn tất xử lý qua MCP Server: {json.dumps(obs_data, ensure_ascii=False)}"
-                elif obs_data.get("status") == "NOT_FOUND":
-                    final_answer = obs_data.get("message", "Không tìm thấy thông tin sinh viên yêu cầu.")
+                elif obs_data.get("status") in ["NOT_FOUND", "CONFLICT", "ERROR"]:
+                    final_answer = obs_data.get("message", "Thao tác không thành công.")
                 else:
                     final_answer = f"Phản hồi từ công cụ: {json.dumps(obs_data, ensure_ascii=False)}"
             
@@ -164,7 +168,7 @@ def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) ->
 
 if __name__ == "__main__":
     print("==========================================================")
-    print("🏫 VINUNI AI COURSE - DAY 03 LAB: CHATBOT VS REACT AGENT")
+    print("🏫 FACILITIES REACT AGENT - MCP ENHANCED")
     print("==========================================================")
     
     provider = get_llm_provider()
@@ -179,13 +183,12 @@ if __name__ == "__main__":
     if "--interactive" in sys.argv:
         print("🎮 [INTERACTIVE MODE] Trò chuyện trực tiếp với ReAct Agent:")
         print("💡 Gợi ý câu hỏi thử nghiệm:")
-        print("   - Câu hỏi chung: 'Quy chế học vụ VinUni yêu cầu bao nhiêu tín chỉ?'")
-        print("   - Tra cứu học vụ: 'Hãy tra cứu thông tin học vụ của sinh viên SV2026001'")
-        print("   - Đặt lịch hẹn: 'Đặt lịch hẹn tư vấn cho SV2026001 vào 14:00 ngày 15/09/2026'")
+        print("   - Kiểm tra phòng: 'Ngày 2026-09-15 từ 14:00-16:00 còn phòng nào chứa được 15 người không?'")
+        print("   - Đặt phòng: 'Tôi là Nguyễn Văn An, đặt phòng P301 ngày 2026-09-15 khung giờ 16:00-18:00'")
         print("   - Gõ 'exit' hoặc 'quit' để kết thúc phiên trò chuyện.\n")
         while True:
             try:
-                user_input = input("👤 Sinh viên hỏi: ").strip()
+                user_input = input("👤 Người dùng hỏi: ").strip()
                 if not user_input or user_input.lower() in ["exit", "quit"]:
                     print("👋 Tạm biệt! Kết thúc phiên trò chuyện.")
                     break
@@ -195,23 +198,25 @@ if __name__ == "__main__":
                 print("\n👋 Đã thoát phiên tương tác.")
                 break
     elif "--all" in sys.argv:
-        print("🚀 [TEST SUITE MODE] Kiểm tra 5 Test Cases:")
+        print("🚀 [TEST SUITE MODE] Kiểm tra toàn bộ Test Cases:")
         completed_count = 0
         todo_count = 0
         all_traces = []
         
         for tc in tests:
             print(f"\n==================================================")
-            print(f"🧪 [{tc['id']}] Loại test: {tc['type']} (Độ phức tạp: {tc['complexity']})")
-            print(f"📌 Kỳ vọng: {tc['expected_behavior']}")
+            print(f"🧪 [{tc['id']}] Loại test: {tc.get('type', 'N/A')} (Độ phức tạp: {tc.get('complexity', 'N/A')})")
+            print(f"📌 Kỳ vọng: {tc.get('expected_behavior', tc.get('expected_tool', 'N/A'))}")
             
-            if tc["question"].strip().startswith("TODO"):
+            question = tc.get("question") or tc.get("query", "")
+            
+            if question.strip().startswith("TODO"):
                 print(f"⏸️ [CHƯA KÍCH HOẠT - ĐANG LÀ TODO]:")
-                print(f"   {tc['question']}")
+                print(f"   {question}")
                 print(f"   👉 Hãy mở file 'config/test_cases.json' để viết câu hỏi thực tế cho Test Case này!")
                 todo_count += 1
             else:
-                logs = run_react_agent(tc["question"], provider, mcp_server)
+                logs = run_react_agent(question, provider, mcp_server)
                 all_traces.extend(logs)
                 completed_count += 1
                 
@@ -226,8 +231,8 @@ if __name__ == "__main__":
         print("  1. Chat trực tiếp liên tục:   python src/app.py --interactive")
         print("  2. Chạy toàn bộ Test Cases:    python src/app.py --all\n")
         
-        sample_query = tests[1]["question"]
-        print(f"--- 🏁 DEMO CHẠY THỬ 1 TEST CASE MẪU (TC02: Tra cứu học vụ) ---")
+        sample_query = tests[0].get("question") or tests[0].get("query", "")
+        print(f"--- 🏁 DEMO CHẠY THỬ 1 TEST CASE MẪU ---")
         logs = run_react_agent(sample_query, provider, mcp_server)
         save_waterfall_trace(logs)
         print("\n💡 Hãy thử ngay lệnh: python src/app.py --interactive để chat trực tiếp!")

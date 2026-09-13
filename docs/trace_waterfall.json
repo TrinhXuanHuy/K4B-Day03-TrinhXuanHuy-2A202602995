@@ -1,29 +1,154 @@
 [
   {
     "step": 1,
-    "query": "Chào bạn, bạn có thể giới thiệu quy chế học vụ cơ bản của Đại học VinUni không?",
-    "action_type": "FINAL_ANSWER",
-    "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool.",
-    "output": "[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
-    "latency_ms": 2845.93
-  },
-  {
-    "step": 1,
-    "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
+    "query": "Ngày 2026-09-15 từ 14:00-16:00 còn phòng họp nào chứa được 15 người không?",
     "action_type": "TOOL_EXECUTION",
-    "tool_name": "academic_query",
+    "tool_name": "check_room_availability",
     "arguments": {
-      "student_id": "SV2026001"
+      "time_slot": "14:00-16:00",
+      "min_capacity": 15,
+      "date": "2026-09-15"
     },
-    "observation": {},
-    "latency_ms": 799.12
+    "observation": {
+      "status": "SUCCESS",
+      "date": "2026-09-15",
+      "time_slot": "14:00-16:00",
+      "total_available": 2,
+      "rooms": [
+        {
+          "room_id": "P301",
+          "room_name": "Phòng Hội Thảo A",
+          "capacity": 20,
+          "available_equipments": [
+            "projector",
+            "micro",
+            "whiteboard",
+            "tv"
+          ]
+        },
+        {
+          "room_id": "P501",
+          "room_name": "Phòng Hội Nghị Lớn",
+          "capacity": 50,
+          "available_equipments": [
+            "projector",
+            "micro",
+            "whiteboard",
+            "video_conference"
+          ]
+        }
+      ]
+    },
+    "latency_ms": 3433.15
   },
   {
     "step": 2,
-    "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
+    "query": "Ngày 2026-09-15 từ 14:00-16:00 còn phòng họp nào chứa được 15 người không?",
     "action_type": "FINAL_ANSWER",
     "thought": "Tổng hợp kết quả từ MCP Server thành công.",
-    "output": "Chưa thể trả lời chi tiết do chưa nhận được dữ liệu từ MCP Server (hãy hoàn thành TODO 2.1).",
+    "output": "Trong khung giờ 14:00-16:00 ngày 2026-09-15, có 2 phòng trống:\n- Phòng Hội Thảo A (P301 - Sức chứa: 20 người, Thiết bị: projector, micro, whiteboard, tv)\n- Phòng Hội Nghị Lớn (P501 - Sức chứa: 50 người, Thiết bị: projector, micro, whiteboard, video_conference)",
     "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Tôi là Nguyễn Văn An, hãy đặt giúp tôi phòng P301 vào ngày 2026-09-15 khung giờ 16:00-18:00, cần máy chiếu và micro.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "book_meeting_room",
+    "arguments": {
+      "equipments": [
+        "projector",
+        "micro"
+      ],
+      "time_slot": "16:00-18:00",
+      "room_id": "P301",
+      "booker_name": "Nguyễn Văn An",
+      "date": "2026-09-15"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "booking_id": "FAC-P301-20260915-BK",
+      "room_id": "P301",
+      "room_name": "Phòng Hội Thảo A",
+      "booker": "Nguyễn Văn An",
+      "date": "2026-09-15",
+      "time_slot": "16:00-18:00",
+      "reserved_equipments": [
+        "projector",
+        "micro"
+      ],
+      "message": "Đặt phòng Phòng Hội Thảo A (P301) thành công cho Nguyễn Văn An vào lúc 16:00-18:00 ngày 2026-09-15."
+    },
+    "latency_ms": 3139.88
+  },
+  {
+    "step": 2,
+    "query": "Tôi là Nguyễn Văn An, hãy đặt giúp tôi phòng P301 vào ngày 2026-09-15 khung giờ 16:00-18:00, cần máy chiếu và micro.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
+    "output": "Đặt phòng Phòng Hội Thảo A (P301) thành công cho Nguyễn Văn An vào lúc 16:00-18:00 ngày 2026-09-15. Mã đặt phòng của bạn là: FAC-P301-20260915-BK.",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Kiểm tra xem phòng P302 có trống ngày 2026-09-15 từ 08:00-10:00 không?",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_room_availability",
+    "arguments": {
+      "time_slot": "08:00-10:00",
+      "date": "2026-09-15"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "date": "2026-09-15",
+      "time_slot": "08:00-10:00",
+      "total_available": 2,
+      "rooms": [
+        {
+          "room_id": "P302",
+          "room_name": "Phòng Họp Nhỏ",
+          "capacity": 8,
+          "available_equipments": [
+            "whiteboard",
+            "tv"
+          ]
+        },
+        {
+          "room_id": "P501",
+          "room_name": "Phòng Hội Nghị Lớn",
+          "capacity": 50,
+          "available_equipments": [
+            "projector",
+            "micro",
+            "whiteboard",
+            "video_conference"
+          ]
+        }
+      ]
+    },
+    "latency_ms": 2620.65
+  },
+  {
+    "step": 2,
+    "query": "Kiểm tra xem phòng P302 có trống ngày 2026-09-15 từ 08:00-10:00 không?",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
+    "output": "Trong khung giờ 08:00-10:00 ngày 2026-09-15, có 2 phòng trống:\n- Phòng Họp Nhỏ (P302 - Sức chứa: 8 người, Thiết bị: whiteboard, tv)\n- Phòng Hội Nghị Lớn (P501 - Sức chứa: 50 người, Thiết bị: projector, micro, whiteboard, video_conference)",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Trần Thị Bình muốn đặt phòng P501 ngày 2026-09-15 lúc 09:00-11:00 kèm thiết bị video_conference.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool.",
+    "output": "[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
+    "latency_ms": 447.83
+  },
+  {
+    "step": 1,
+    "query": "Xin chào, bạn có thể giúp tôi làm những việc gì?",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool.",
+    "output": "[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
+    "latency_ms": 523.68
   }
 ]

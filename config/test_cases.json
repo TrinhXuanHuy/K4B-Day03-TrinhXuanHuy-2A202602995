@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC01",
+    "type": "SINGLE_TOOL_CALL",
+    "complexity": "MEDIUM",
+    "question": "Ngày 2026-09-15 từ 14:00-16:00 còn phòng họp nào chứa được 15 người không?",
+    "expected_behavior": "Gọi tool check_room_availability với min_capacity=15"
+  },
+  {
+    "id": "TC02",
+    "type": "ACTION_EXECUTION",
+    "complexity": "MEDIUM",
+    "question": "Tôi là Nguyễn Văn An, hãy đặt giúp tôi phòng P301 vào ngày 2026-09-15 khung giờ 16:00-18:00, cần máy chiếu và micro.",
+    "expected_behavior": "Gọi tool book_meeting_room tạo đơn đặt phòng P301"
+  },
+  {
+    "id": "TC03",
+    "type": "QUERY_FILTER",
+    "complexity": "LOW",
+    "question": "Kiểm tra xem phòng P302 có trống ngày 2026-09-15 từ 08:00-10:00 không?",
+    "expected_behavior": "Gọi tool check_room_availability kiểm tra phòng P302"
+  },
+  {
+    "id": "TC04",
+    "type": "ACTION_EXECUTION",
+    "complexity": "HIGH",
+    "question": "Trần Thị Bình muốn đặt phòng P501 ngày 2026-09-15 lúc 09:00-11:00 kèm thiết bị video_conference.",
+    "expected_behavior": "Gọi tool book_meeting_room và phát hiện trạng thái CONFLICT (trùng lịch)"
+  },
+  {
+    "id": "TC05",
+    "type": "GENERAL_CHAT",
+    "complexity": "LOW",
+    "question": "Xin chào, bạn có thể giúp tôi làm những việc gì?",
+    "expected_behavior": "Trả lời bằng text trực tiếp (type=text), không gọi tool"
+  }
+]
